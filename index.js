@@ -19,19 +19,18 @@ dbConnection.sync()
 //express settings
 app = express();
 
-app.set('view engine', 'ejs');
-app.use(express.urlencoded());
+app.use(express.json());
 
 //routes
 app.get('/', (req, res)=>{
     User.findAll()
     .then((users)=>{
-        return res.render("index",{
-            users:users
-        });
+        return res.json(users);
     })
     .catch(()=>{
-        return res.send("Erro!");
+        return res.status(404).send({
+            message:'Error fetching users.'
+        });
     });
 });
 
@@ -39,13 +38,12 @@ app.get('/user/:id', (req,res)=>{
     let id = parseInt(req.params.id);
     User.findByPk(id)
     .then((user)=>{
-        res.render("edit",{
-            user:user
-        });
+        return res.json(user);
     })
     .catch(()=>{
-        console.log(`Error finding user ${id}`);
-        res.redirect("/");
+        return res.status(404).send({
+            message:'User not found!'
+        });
     });
 });
 
@@ -53,41 +51,49 @@ app.post('/user/:id', (req,res)=>{
     let id = req.params.id;
     let name = req.body.name;
     let surname = req.body.surname;
-    try{
-        User.update({
-            name:name,
-            surname:surname,
-        },{
-            where:
-            {
-                id:id
-            }
-        });
-    } catch {
-        console.log(`Error updating user ${id}`)
-    } finally {
-        res.redirect('/');
-    }
+    User.update({
+        name:name,
+        surname:surname,
+    },
+    {
+        where:
+        {
+            id:id
+        }
+    })
+    .then(() => {
+        User.findByPk(id)
+        .then((user)=>{
+            return res.json(user);
+        })
+    })
+    .catch ((error) => {
+        res.status(500).send({
+            message:`Error updating user ${id}`
+        })
+    });
 });
 
 
 app.post('/user/:id/delete', (req,res)=>{
     let id = req.params.id;
-    try {
-        User.destroy({
-        where:{
-            id:id
-        }
-    })} catch {
-        ((error)=>{
-        console.log(`Error deleting user ${id}: ${error}`);
-    })} finally{
-        res.redirect("/");
+    
+    User.destroy({
+    where:{
+        id:id
     }
-});
+    })
+    .then(()=>{
+        return res.status(200).send({
+            message:'User deleted.'
+        });
+    })
+    .catch(()=>{
+        return res.status(500).send({
+            message:'Error deleting user.'
+        });
+    });
 
-app.get('/new', (req,res)=>{
-    return res.render("new");
 });
 
 
@@ -98,12 +104,13 @@ app.post('/new', (req,res) => {
         name:name,
         surname:surname,
     })
-    .then(()=>{
-        console.log("User created!");
-        return res.redirect("/");
+    .then((user)=>{
+        return res.json(user);
     })
-    .catch((error)=>{
-        console.log(error)
+    .catch(()=>{
+        return res.status(500).send({
+            message:'Error creating user.'
+        });
     });
 });
 
