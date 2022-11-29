@@ -22,7 +22,7 @@ app = express();
 app.use(express.json());
 
 //routes
-app.get('/', (req, res)=>{
+app.get('/user', (req, res)=>{
     User.findAll()
     .then((users)=>{
         return res.json(users);
@@ -97,7 +97,7 @@ app.post('/user/:id/delete', (req,res)=>{
 });
 
 
-app.post('/new', (req,res) => {
+app.post('/user/new', (req,res) => {
     let name = req.body.name;
     let surname = req.body.surname;
     User.create({
