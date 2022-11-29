@@ -21,6 +21,8 @@ app = express();
 
 app.use(express.json());
 
+app.use(cors());
+
 //routes
 app.get('/user', (req, res)=>{
     User.findAll()
