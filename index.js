@@ -9,7 +9,7 @@ dbConnection.authenticate()
         console.log("DB Connected!")
     })
     .catch((errorMsg)=>{
-        console.log(errorMsg);
+        console.error(errorMsg);
     });
 
 dbConnection.sync()
@@ -54,18 +54,20 @@ app.post('/user/:id', (req,res)=>{
     let id = req.params.id;
     let name = req.body.name;
     let surname = req.body.surname;
-    User.update({
-        name:name,
-        surname:surname,
-    },
-    {
-        where:
-        {
-            id:id
-        }
-    })
+    let descricao = req.body.descricao;
+    let user = User.findByPk(id)
     .then(() => {
-        User.findByPk(id)
+        user.update({
+            name:name,
+            surname:surname,
+            descricao:descricao
+        },
+        {
+            where:
+            {
+                id:id
+            }
+        })
         .then((user)=>{
             return res.json(user);
         })
@@ -100,12 +102,14 @@ app.post('/user/:id/delete', (req,res)=>{
 });
 
 
-app.post('/user/new', (req,res) => {
+app.post('/user/', (req,res) => {
     let name = req.body.name;
     let surname = req.body.surname;
+    let descricao = req.body.descricao;
     User.create({
         name:name,
         surname:surname,
+        descricao:descricao
     })
     .then((user)=>{
         return res.json(user);
