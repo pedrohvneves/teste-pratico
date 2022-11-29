@@ -1,7 +1,8 @@
 const express = require('express');
-const ejs = require('ejs');
 const dbConnection = require("./db/database");
 const User = require("./db/User");
+const cors = require('cors');
+
 //db
 dbConnection.authenticate()
     .then(() =>{
