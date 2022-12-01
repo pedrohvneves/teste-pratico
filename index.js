@@ -81,20 +81,27 @@ app.put('/user/:id', (req,res)=>{
 });
 
 
-app.post('/user/:id/delete', (req,res)=>{
+app.delete('/user/:id/', (req,res)=>{
     const id = req.params.id;
-    
     User.destroy({
     where:{
         id:id
     }
     })
-    .then(()=>{
-        return res.status(200).send({
-            message:'User deleted.'
-        });
+    .then((queryResult)=>{
+        if(queryResult > 0){
+            return res.status(200).send({
+                message:'User deleted.'
+            });
+        }
+        else{
+            return res.status(200).send({
+                message:'User not found.'
+            });
+        }
     })
-    .catch(()=>{
+    .catch((error)=>{
+        console.error(error);
         return res.status(500).send({
             message:'Error deleting user.'
         });
