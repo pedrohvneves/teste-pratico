@@ -38,7 +38,7 @@ app.get('/user', (req, res)=>{
 });
 
 app.get('/user/:id', (req,res)=>{
-    let id = parseInt(req.params.id);
+    const id = parseInt(req.params.id);
     User.findByPk(id)
     .then((user)=>{
         return res.json(user);
@@ -50,29 +50,30 @@ app.get('/user/:id', (req,res)=>{
     });
 });
 
-app.post('/user/:id', (req,res)=>{
-    let id = req.params.id;
-    let name = req.body.name;
-    let surname = req.body.surname;
-    let descricao = req.body.descricao;
-    let user = User.findByPk(id)
-    .then(() => {
-        user.update({
-            name:name,
-            surname:surname,
-            descricao:descricao
-        },
+app.put('/user/:id', (req,res)=>{
+    const id = req.params.id;
+    const name = req.body.name;
+    const surname = req.body.surname;
+    const descricao = req.body.descricao;
+    User.update({
+        name:name,
+        surname:surname,
+        descricao:descricao
+    },
+    {
+        where:
         {
-            where:
-            {
-                id:id
-            }
-        })
+            id:id
+        }
+    })
+    .then(()=>{
+        User.findByPk(id)
         .then((user)=>{
             return res.json(user);
         })
     })
     .catch ((error) => {
+        console.error(error);
         res.status(500).send({
             message:`Error updating user ${id}`
         })
@@ -81,7 +82,7 @@ app.post('/user/:id', (req,res)=>{
 
 
 app.post('/user/:id/delete', (req,res)=>{
-    let id = req.params.id;
+    const id = req.params.id;
     
     User.destroy({
     where:{
@@ -103,9 +104,9 @@ app.post('/user/:id/delete', (req,res)=>{
 
 
 app.post('/user/', (req,res) => {
-    let name = req.body.name;
-    let surname = req.body.surname;
-    let descricao = req.body.descricao;
+    const name = req.body.name;
+    const surname = req.body.surname;
+    const descricao = req.body.descricao;
     User.create({
         name:name,
         surname:surname,
